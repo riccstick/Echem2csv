@@ -1,6 +1,9 @@
 # Echem2csv
-python script to combine csv data
+- python3 script to combine csv data
+## Required modules
+- argparse, textwrap, pandas
 
+## Description
 - This program reads .csv files containing two columns.
 - Column A -> Potential (V); Column B -> Current (A)
 
