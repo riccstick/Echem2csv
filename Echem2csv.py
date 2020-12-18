@@ -8,19 +8,24 @@ parser = argparse.ArgumentParser(
 	formatter_class=argparse.RawDescriptionHelpFormatter,
 	description=textwrap.dedent('''\
  +----------------+
- | Echem2csv_v1.0 |
+ | Echem2csv_v1.1 |
  +----------------+
  by Erik Breslmayr, 2020
  
  - This program reads .csv files containing two columns.
  - Column A -> Potential (V); Column B -> Current (A)
  
- - The Potential is converted into mV and can be converted to SHE values.
- - The Current is converted into µA or nA, however a random factor can also be choosen.
+ - The Potential is converted into mV and can be converted to SHE (Standard Hydrogen Electrode) values.
+ - The Current is converted into µA or nA, however a random factor can also be applied.
  
- - Finally a file is created and all Currents are combined and saved.
+ - Finally a file is created and all Current columns are combined and saved. The xAxis or first column with the Potential (mV) is choosen from the first file processed!
  - Column A -> Potential (mV); Column B -> Current (µA); Column nth...
 
+ - Examples:
+    Echem2csv.py -i file1.csv file2.csv 
+    Echem2csv.py -i file?.csv -she 230 -cur nA 
+    Echem2csv.py -i *.csv -cur 100000 -s tab
+    
 '''))
 
 parser.add_argument("-i", "--infile", nargs='+', required=True, help='Specify input filename in csv format!')
@@ -52,8 +57,9 @@ else:
 def xcolumn():
     with open(args.infile[0], 'r') as f:     
         data = pd.read_csv(f, sep=',', header=1, names = ['Potential', 'Current'])
-        data['Potential (mV)'] = data['Potential'] * 1000 + float(args.SHE_convert)
-        x = data['Potential (mV)']
+        xcolName = 'Potential (mV) / ' + colName
+        data[xcolName] = data['Potential'] * 1000 + float(args.SHE_convert)
+        x = data[xcolName]
         return x
     
 def ycolumns(f):
@@ -67,6 +73,8 @@ xycombo = xcolumn()
 
 for i in enumerate(args.infile):
     y = ycolumns(i[1])
+    name = i[1].split('.csv')
+    y = pd.concat([y], keys=[name[0]], axis=1)
     num = i[0] + 1
     xycombo = pd.concat([xycombo, y], axis=1)
     
