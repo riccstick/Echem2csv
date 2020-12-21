@@ -30,7 +30,7 @@ Output Sample:
 Column 1                                             Column2     Column*
  Potential (mV) / Current (µA)   filename1   filename*
 ''',
-                'version': '1.2',
+                'version': '1.3',
                 'copyright': 'Erik Breslmayr, 2020',
                 'license': 'MIT'
          },{
@@ -57,13 +57,21 @@ def main():
     parser.add_argument("-potValue", "--potential_convert_value", metavar='Potential random convert factor',help='Random factor; e.g. 123')
     
     parser.add_argument("-curValue", "--current_convert_value", metavar='Current random convert factor',help='Random factor; e.g. 123')
-
-    parser.add_argument("-s", "--seperator", default=",", help='Seperator (e.g. tab)')
+    
+    parser.add_argument("-head", "--headerlines", metavar='Headerlines', default="2", help='Optional: Choose how many header lines before measured data start; default is 2 lines')
+    
+    parser.add_argument("-isep", "--inputseperator", metavar='Seperator for Inputfiles', default="tab", help='Seperator (e.g. tab)')
+    
+    parser.add_argument("-osep", "--outputseperator", metavar='Seperator for Outputfile', default=",", help='Seperator (e.g. tab)')
 
     args = parser.parse_args()
     
-    if args.seperator == "tab":
-        args.seperator = "\t"
+    if args.inputseperator == "tab":
+        args.inputseperator = "\t"
+    if args.outputseperator == "tab":
+        args.outputseperator = "\t"
+    
+    headerlines = int(args.headerlines) - 1
     
     def potCalc():
         if args.potential_convert == "V":
@@ -110,7 +118,7 @@ def main():
 
     def xcolumn():
         with open(args.Inputfiles[0], 'r') as f:     
-            data = pd.read_csv(f, sep=',', header=1, names = ['Potential', 'Current'])
+            data = pd.read_csv(f, sep=args.inputseperator, header=headerlines, names = ['Potential', 'Current'])
             xcolNameNew = xpot[1] + ycur[1]
             data[xcolNameNew] = data['Potential'] * float(xpot[0]) + float(args.SHE_convert)
             x = data[xcolNameNew]
@@ -118,7 +126,7 @@ def main():
     
     def ycolumns(f):
         with open(f, 'r') as f:     
-            data = pd.read_csv(f, sep=',', header=1, names = ['Potential','Current'])
+            data = pd.read_csv(f, sep=args.inputseperator, header=headerlines, names = ['Potential','Current'])
             data[ycur[1]] = data['Current'] * float(ycur[0])
             y = data[ycur[1]]
             return y
@@ -135,7 +143,7 @@ def main():
         num = i[0] + 1
         xycombo = pd.concat([xycombo, y], axis=1)
     
-    xycombo.to_csv(args.Outputfile, sep=args.seperator, index=False)
+    xycombo.to_csv(args.Outputfile, sep=args.outputseperator, index=False)
 
     print("+-------------------------------------------------------------------+")
     print("   Processed and combined " + str(num) + " files.")

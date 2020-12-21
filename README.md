@@ -20,8 +20,9 @@
 ### GUI
 
 - Install [Gooey](https://github.com/chriskiehl/Gooey#how-does-it-work) and execute with python3: `python Echem2csvGui.py`
+- For Windows10 a standalone .exe file can be alternatively downloaded, where the only difference is the / is a \ in the script.
 
-<img src="./Gui.png" style="zoom:50%;" />
+<img src="./Gui.png" style="zoom:33%;" />
 
 
 

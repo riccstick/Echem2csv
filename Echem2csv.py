@@ -8,7 +8,7 @@ parser = argparse.ArgumentParser(
 	formatter_class=argparse.RawDescriptionHelpFormatter,
 	description=textwrap.dedent('''\
  +----------------+
- | Echem2csv_v1.2 |
+ | Echem2csv_v1.3 |
  +----------------+
  by Erik Breslmayr, 2020
  
@@ -46,12 +46,19 @@ parser.add_argument("-potValue", "--potential_convert_value", help='Random facto
 
 parser.add_argument("-curValue", "--current_convert_value", help='Specify a factor to convert e.g. 123')
 
-parser.add_argument("-s", "--seperator", default=",", help='Optional: Choose seperator (e.g. tab); default is a comma ,')
+parser.add_argument("-head", "--headerlines", default="2", help='Optional: Choose how many header lines before measured data start; default is 2 lines')
+
+parser.add_argument("-isep", "--inputseperator", default="\t", help='Optional: Choose seperator (e.g. tab); default is a comma tab')
+parser.add_argument("-osep", "--outputseperator", default=",", help='Optional: Choose seperator (e.g. tab); default is a comma ,')
 
 args = parser.parse_args()
 
-if args.seperator == "tab":
-	args.seperator = "\t"
+if args.inputseperator == "tab":
+	args.inputseperator = "\t"
+if args.outputseperator == "tab":
+        args.outputseperator = "\t"
+
+headerlines = int(args.headerlines) - 1
 
 def potCalc():
     if args.potential_convert == "V":
@@ -98,7 +105,7 @@ def curCalc():
 
 def xcolumn():
     with open(args.Inputfiles[0], 'r') as f:     
-        data = pd.read_csv(f, sep=',', header=1, names = ['Potential', 'Current'])
+        data = pd.read_csv(f, sep=args.inputseperator, header=headerlines, names = ['Potential', 'Current'])
         xcolNameNew = xpot[1] + ycur[1]
         data[xcolNameNew] = data['Potential'] * float(xpot[0]) + float(args.SHE_convert)
         x = data[xcolNameNew]
@@ -106,7 +113,7 @@ def xcolumn():
     
 def ycolumns(f):
     with open(f, 'r') as f:     
-        data = pd.read_csv(f, sep=',', header=1, names = ['Potential','Current'])
+        data = pd.read_csv(f, sep=args.inputseperator, header=headerlines, names = ['Potential','Current'])
         data[ycur[1]] = data['Current'] * float(ycur[0])
         y = data[ycur[1]]
         return y
@@ -122,7 +129,7 @@ for i in enumerate(args.Inputfiles):
     num = i[0] + 1
     xycombo = pd.concat([xycombo, y], axis=1)
     
-xycombo.to_csv(args.Outputfile, sep=args.seperator, index=False)
+xycombo.to_csv(args.Outputfile, sep=args.outputseperator, index=False)
 
 print("+-------------------------------------------+")
 print("   Processed and combined " + str(num) + " files.")
