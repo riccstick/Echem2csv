@@ -138,7 +138,7 @@ def main():
     for i in enumerate(args.Inputfiles):
         y = ycolumns(i[1])
         nameori = i[1].split('.csv')
-        name = nameori[0].split('\')
+        name = nameori[0].split('\\')
         y = pd.concat([y], keys=[name[-1]], axis=1)
         num = i[0] + 1
         xycombo = pd.concat([xycombo, y], axis=1)

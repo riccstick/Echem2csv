@@ -3,8 +3,8 @@ gooey_root = os.path.dirname(gooey.__file__)
 gooey_languages = Tree(os.path.join(gooey_root, 'languages'), prefix = 'gooey/languages')
 gooey_images = Tree(os.path.join(gooey_root, 'images'), prefix = 'gooey/images')
 
-a = Analysis([r'Echem2csvGui.py'],
-             pathex=[r'C:\mybuild'],
+a = Analysis([r'Echem2csvGuiW10.py'],
+             pathex=[r'C:\Users\lbt\mybuild'],
              hiddenimports=[],
              hookspath=None,
              runtime_hooks=None,
