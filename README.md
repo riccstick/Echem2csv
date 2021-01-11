@@ -27,7 +27,7 @@
 
 
 ## Description
-- Echem2csv reads CSV files containing two columns.
+- Echem2csv reads data files from Echemistry Software, containing two columns.
 
   Input Sample:
 
