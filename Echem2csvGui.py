@@ -52,20 +52,20 @@ def main():
     
     parser.add_argument("-she", "--SHE_convert", metavar='Potential Unit (SHE)', default="200", help='Factor converting to Standard Hydrogen Electrode Potential. Use 0 for skipping.')
     
-    parser.add_argument("potential_convert", metavar='Potential Unit', default="mV", help='Choose Unit', choices=['V', 'mV', 'µV', 'nV','pV'])
+    parser.add_argument("potential_convert", metavar='Potential Unit', default="mV", help='Choose Unit', choices=['V', 'mV', 'µV', 'nV','pV', 'Random factor'])
 
-    parser.add_argument("current_convert", metavar='Current Unit', default="µA", help='Choose Unit', choices=['A', 'mA', 'µA', 'nA','pA'])
+    parser.add_argument("current_convert", metavar='Current Unit', default="µA", help='Choose Unit', choices=['A', 'mA', 'µA', 'nA','pA', 'Random factor'])
 
-    parser.add_argument("-potValue", "--potential_convert_value", metavar='Potential random convert factor',help='Random factor; e.g. 123')
-    
-    parser.add_argument("-curValue", "--current_convert_value", metavar='Current random convert factor',help='Random factor; e.g. 123')
-    
-    parser.add_argument("-head", "--headerlines", metavar='Headerlines', default="2", help='Optional: Choose how many header lines before measured data start; default is 2 lines')
+    parser.add_argument("-head", "--headerlines", metavar='Headerrows', default="2", help='Select header rows to skip')
     
     parser.add_argument("-isep", "--inputseperator", metavar='Seperator for Inputfiles', default="space", choices=['tab', 'space', 'comma', 'dot','minus'])
     
     parser.add_argument("-osep", "--outputseperator", metavar='Seperator for Outputfile', default="comma", choices=['tab', 'space', 'comma', 'dot','minus'])
 
+    parser.add_argument("-potValue", "--potential_convert_value", metavar='Potential random convert factor',help='Random factor e.g. 123')
+    
+    parser.add_argument("-curValue", "--current_convert_value", metavar='Current random convert factor',help='Random factor e.g. 123')
+    
     args = parser.parse_args()
     
     if args.inputseperator == "tab":
@@ -108,9 +108,9 @@ def main():
         elif args.potential_convert == "pV":
             xcolFactor = 1000000000000
             xcolName = 'Potential (pV) / '
-        else:
+        elif args.potential_convert == "Random factor":
             xcolFactor = args.potential_convert_value
-            xcolName = 'Potential (custom)'
+            xcolName = 'Potential (custom) / '
         return xcolFactor, xcolName
         
 
@@ -130,7 +130,7 @@ def main():
         elif args.current_convert == "pA":
             ycolFactor = 1000000000000
             ycolName = 'Current (pA)'
-        else:
+        elif args.potential_convert == "Random factor":
             ycolFactor = args.current_convert_value
             ycolName = 'Current (custom)'
         return ycolFactor, ycolName

@@ -40,46 +40,47 @@ parser.add_argument("-o", "--Outputfile", default="Echem2Output.csv", help='Opti
 
 parser.add_argument("-she", "--SHE_convert", default="200", help='Specify factor to convert to Standard Hydrogen Electrode potential; default = 200')
 
-parser.add_argument("-pot", "--potential_convert", default="mV", help='Specify Unit (V, mV, µV, nV, pV; default = mV')
+parser.add_argument("-pot", "--potential_convert", default="mV", help='Specify Unit (V, mV, µV, nV, pV or RF (RF -> for Random factor!); default = mV')
 
-parser.add_argument("-cur", "--current_convert", default="µA", help='Choose if converted to µA or nA; default = µA')
+parser.add_argument("-cur", "--current_convert", default="µA", help='Specify Unit (V, mV, µV, nV, pV or RF (RF -> for Random factor!); default = µA')
 
-parser.add_argument("-potValue", "--potential_convert_value", help='Random factor; e.g. 123')
+parser.add_argument("-isep", "--inputseperator", default="\t", help='Optional: Choose seperator (e.g. tab); default is a tab')
 
-parser.add_argument("-curValue", "--current_convert_value", help='Specify a factor to convert e.g. 123')
+parser.add_argument("-osep", "--outputseperator", default=",", help='Optional: Choose seperator (e.g. comma); default is a comma ,')
 
 parser.add_argument("-head", "--headerlines", default="2", help='Optional: Choose how many header lines before measured data start; default is 2 lines')
 
-parser.add_argument("-isep", "--inputseperator", default="\t", help='Optional: Choose seperator (e.g. tab); default is a tab')
-parser.add_argument("-osep", "--outputseperator", default=",", help='Optional: Choose seperator (e.g. tab); default is a comma ,')
+parser.add_argument("-potValue", "--potential_convert_value", help='Specify a Random factor to convert; e.g. 123')
+
+parser.add_argument("-curValue", "--current_convert_value", help='Specify a Random factor to convert; e.g. 123')
 
 args = parser.parse_args()
 
-    if args.inputseperator == "tab":
-        args.inputseperator = "\t"
-    elif args.inputseperator == "space":
-        args.inputseperator = " "
-    elif args.inputseperator == "comma":
-        args.inputseperator = ","
-    elif args.inputseperator == "dot":
-        args.inputseperator = "."
-    elif args.inputseperator == "minus":
-        args.inputseperator = "-"
-    else
-        args.inputseperator =args.inputseperator
+if args.inputseperator == "tab":
+    args.inputseperator = "\t"
+elif args.inputseperator == "space":
+    args.inputseperator = " "
+elif args.inputseperator == "comma":
+    args.inputseperator = ","
+elif args.inputseperator == "dot":
+    args.inputseperator = "."
+elif args.inputseperator == "minus":
+    args.inputseperator = "-"
+else:
+    args.inputseperator = args.inputseperator
     
-    if args.outputseperator == "tab":
-        args.outputseperator = "\t"
-    elif args.outputseperator == "space":
-        args.outputseperator = " "
-    elif args.outputseperator == "comma":
-        args.outputseperator = ","
-    elif args.outputseperator == "dot":
-        args.outputseperator = "."
-    elif args.outputseperator == "minus":
-        args.outputseperator = "-"
-    else
-        args.outputseperator = args.outputseperator
+if args.outputseperator == "tab":
+    args.outputseperator = "\t"
+elif args.outputseperator == "space":
+    args.outputseperator = " "
+elif args.outputseperator == "comma":
+    args.outputseperator = ","
+elif args.outputseperator == "dot":
+    args.outputseperator = "."
+elif args.outputseperator == "minus":
+    args.outputseperator = "-"
+else:
+    args.outputseperator = args.outputseperator
 
 headerlines = int(args.headerlines)
 
@@ -99,9 +100,9 @@ def potCalc():
     elif args.potential_convert == "pV":
         xcolFactor = 1000000000000
         xcolName = 'Potential (pV) / '
-    else:
+    elif args.potential_convert == "RF":
         xcolFactor = args.potential_convert_value
-        xcolName = 'Potential (custom)'
+        xcolName = 'Potential (custom) / '
     return xcolFactor, xcolName
         
 
@@ -121,7 +122,7 @@ def curCalc():
     elif args.current_convert == "pA":
         ycolFactor = 1000000000000
         ycolName = 'Current (pA)'
-    else:
+    elif args.current_convert == "RF":
         ycolFactor = args.current_convert_value
         ycolName = 'Current (custom)'
     return ycolFactor, ycolName
