@@ -4,7 +4,7 @@ import pandas as pd
 
 @Gooey(program_name="Echem2csv", 
     program_description="Settings", 
-    default_size=(650, 900),
+    default_size=(650, 1000),
     progress_regex=r"^progress: (?P<current>\d+)/(?P<total>\d+)$",
     progress_expr="current / total * 100",
     required_cols=1,
@@ -18,8 +18,10 @@ import pandas as pd
  
 Echem2csv reads .csv files containing two columns.
 
-Input Sample:
-Column1         Column2 
+Input Sample with 2 header rows:
+Column1         Column2
+Title: Title
+Label: i vs E (AUT50246)
 Potential (V)   Current (A)
  
 The Potential is converted into a unit specified and can be converted to SHE (Standard Hydrogen Electrode) values. The Current is converted into a unit specified, or a random factor can also be applied.
@@ -30,7 +32,7 @@ Output Sample:
 Column 1                                             Column2     Column*
  Potential (mV) / Current (µA)   filename1   filename*
 ''',
-                'version': '1.3',
+                'version': '1.4',
                 'copyright': 'Erik Breslmayr, 2020',
                 'license': 'MIT'
          },{
@@ -60,18 +62,35 @@ def main():
     
     parser.add_argument("-head", "--headerlines", metavar='Headerlines', default="2", help='Optional: Choose how many header lines before measured data start; default is 2 lines')
     
-    parser.add_argument("-isep", "--inputseperator", metavar='Seperator for Inputfiles', default="tab", help='Seperator (e.g. tab)')
+    parser.add_argument("-isep", "--inputseperator", metavar='Seperator for Inputfiles', default="space", choices=['tab', 'space', 'comma', 'dot','minus'])
     
-    parser.add_argument("-osep", "--outputseperator", metavar='Seperator for Outputfile', default=",", help='Seperator (e.g. tab)')
+    parser.add_argument("-osep", "--outputseperator", metavar='Seperator for Outputfile', default="comma", choices=['tab', 'space', 'comma', 'dot','minus'])
 
     args = parser.parse_args()
-    
+         
     if args.inputseperator == "tab":
         args.inputseperator = "\t"
+    elif args.inputseperator == "space":
+        args.inputseperator = " "
+    elif args.inputseperator == "comma":
+        args.inputseperator = ","
+    elif args.inputseperator == "dot":
+        args.inputseperator = "."
+    elif args.inputseperator == "minus":
+        args.inputseperator = "-"
+    
     if args.outputseperator == "tab":
         args.outputseperator = "\t"
+    elif args.outputseperator == "space":
+        args.outputseperator = " "
+    elif args.outputseperator == "comma":
+        args.outputseperator = ","
+    elif args.outputseperator == "dot":
+        args.outputseperator = "."
+    elif args.outputseperator == "minus":
+        args.outputseperator = "-"
     
-    headerlines = int(args.headerlines) - 1
+    headerlines = int(args.headerlines)
     
     def potCalc():
         if args.potential_convert == "V":
@@ -118,7 +137,7 @@ def main():
 
     def xcolumn():
         with open(args.Inputfiles[0], 'r') as f:     
-            data = pd.read_csv(f, sep=args.inputseperator, header=headerlines, names = ['Potential', 'Current'])
+            data = pd.read_csv(f, sep=args.inputseperator, skiprows=headerlines, names = ['Potential', 'Current'])
             xcolNameNew = xpot[1] + ycur[1]
             data[xcolNameNew] = data['Potential'] * float(xpot[0]) + float(args.SHE_convert)
             x = data[xcolNameNew]
@@ -126,7 +145,7 @@ def main():
     
     def ycolumns(f):
         with open(f, 'r') as f:     
-            data = pd.read_csv(f, sep=args.inputseperator, header=headerlines, names = ['Potential','Current'])
+            data = pd.read_csv(f, sep=args.inputseperator, skiprows=headerlines, names = ['Potential','Current'])
             data[ycur[1]] = data['Current'] * float(ycur[0])
             y = data[ycur[1]]
             return y
@@ -137,7 +156,7 @@ def main():
 
     for i in enumerate(args.Inputfiles):
         y = ycolumns(i[1])
-        nameori = i[1].split('.csv')
+        nameori = i[1].split('.')
         name = nameori[0].split('\\')
         y = pd.concat([y], keys=[name[-1]], axis=1)
         num = i[0] + 1
@@ -145,10 +164,9 @@ def main():
     
     xycombo.to_csv(args.Outputfile, sep=args.outputseperator, index=False)
 
-    print("+-------------------------------------------------------------------+")
     print("   Processed and combined " + str(num) + " files.")
-    print("   Output filename: " + args.Outputfile)
-    print("+-------------------------------------------------------------------+")
+    print("   Output file saved -> " + args.Outputfile)
+    print("\n")
 
     
 if __name__ == '__main__':

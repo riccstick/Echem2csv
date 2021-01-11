@@ -8,14 +8,16 @@ parser = argparse.ArgumentParser(
 	formatter_class=argparse.RawDescriptionHelpFormatter,
 	description=textwrap.dedent('''\
  +----------------+
- | Echem2csv_v1.3 |
+ | Echem2csv_v1.4 |
  +----------------+
  by Erik Breslmayr, 2020
  
  Echem2csv reads .csv files containing two columns.
 
- Input Sample:
+ Input Sample with 2 header rows:
  Column1         Column2 
+ Title: Title
+ Label: i vs E (AUT50246)
  Potential (V)   Current (A)
  
  The Potential is converted into a unit specified and can be converted to SHE (Standard Hydrogen Electrode) values. The Current is converted into a unit specified, or a random factor can also be applied.
@@ -48,17 +50,38 @@ parser.add_argument("-curValue", "--current_convert_value", help='Specify a fact
 
 parser.add_argument("-head", "--headerlines", default="2", help='Optional: Choose how many header lines before measured data start; default is 2 lines')
 
-parser.add_argument("-isep", "--inputseperator", default="\t", help='Optional: Choose seperator (e.g. tab); default is a comma tab')
+parser.add_argument("-isep", "--inputseperator", default="\t", help='Optional: Choose seperator (e.g. tab); default is a tab')
 parser.add_argument("-osep", "--outputseperator", default=",", help='Optional: Choose seperator (e.g. tab); default is a comma ,')
 
 args = parser.parse_args()
 
-if args.inputseperator == "tab":
-	args.inputseperator = "\t"
-if args.outputseperator == "tab":
+    if args.inputseperator == "tab":
+        args.inputseperator = "\t"
+    elif args.inputseperator == "space":
+        args.inputseperator = " "
+    elif args.inputseperator == "comma":
+        args.inputseperator = ","
+    elif args.inputseperator == "dot":
+        args.inputseperator = "."
+    elif args.inputseperator == "minus":
+        args.inputseperator = "-"
+    else
+        args.inputseperator =args.inputseperator
+    
+    if args.outputseperator == "tab":
         args.outputseperator = "\t"
+    elif args.outputseperator == "space":
+        args.outputseperator = " "
+    elif args.outputseperator == "comma":
+        args.outputseperator = ","
+    elif args.outputseperator == "dot":
+        args.outputseperator = "."
+    elif args.outputseperator == "minus":
+        args.outputseperator = "-"
+    else
+        args.outputseperator = args.outputseperator
 
-headerlines = int(args.headerlines) - 1
+headerlines = int(args.headerlines)
 
 def potCalc():
     if args.potential_convert == "V":
@@ -105,7 +128,7 @@ def curCalc():
 
 def xcolumn():
     with open(args.Inputfiles[0], 'r') as f:     
-        data = pd.read_csv(f, sep=args.inputseperator, header=headerlines, names = ['Potential', 'Current'])
+        data = pd.read_csv(f, sep=args.inputseperator, skiprows=headerlines, names = ['Potential', 'Current'])
         xcolNameNew = xpot[1] + ycur[1]
         data[xcolNameNew] = data['Potential'] * float(xpot[0]) + float(args.SHE_convert)
         x = data[xcolNameNew]
@@ -113,7 +136,7 @@ def xcolumn():
     
 def ycolumns(f):
     with open(f, 'r') as f:     
-        data = pd.read_csv(f, sep=args.inputseperator, header=headerlines, names = ['Potential','Current'])
+        data = pd.read_csv(f, sep=args.inputseperator, skiprows=headerlines, names = ['Potential','Current'])
         data[ycur[1]] = data['Current'] * float(ycur[0])
         y = data[ycur[1]]
         return y
@@ -124,7 +147,7 @@ xycombo = xcolumn()
 
 for i in enumerate(args.Inputfiles):
     y = ycolumns(i[1])
-    name = i[1].split('.csv')
+    name = i[1].split('.')
     y = pd.concat([y], keys=[name[0]], axis=1)
     num = i[0] + 1
     xycombo = pd.concat([xycombo, y], axis=1)
@@ -133,7 +156,7 @@ xycombo.to_csv(args.Outputfile, sep=args.outputseperator, index=False)
 
 print("+-------------------------------------------+")
 print("   Processed and combined " + str(num) + " files.")
-print("   Output filename: " + args.Outputfile)
+print("   Output file saved -> " + args.Outputfile)
 print("+-------------------------------------------+")
 
     
