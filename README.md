@@ -10,6 +10,12 @@
 
 - gooey, textwrap, pandas
 
+## Citation
+
+[![DOI](https://zenodo.org/badge/322323254.svg)](https://zenodo.org/badge/latestdoi/322323254)    
+
+> Breslmayr, E. (2021). Echem2csv - A tool for combining and recalculation of electrochemical data (Version v1.4).  Zenodo. http://doi.org/10.5281/zenodo.4906278
+
 ## Installation
 
 ### Command-line
